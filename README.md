@@ -3,18 +3,17 @@
 <img src="https://img.shields.io/badge/-Django%204.2+-092E20?style=for-the-badge&logo=django&logoColor=white" />
 <img src="https://img.shields.io/badge/-Python%203.11+-3776AB?style=for-the-badge&logo=python&logoColor=white" />
 <img src="https://img.shields.io/badge/-MySQL%208.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white" />
-<img src="https://img.shields.io/badge/-Gemini%20AI-8E75B2?style=for-the-badge&logo=google&logoColor=white" />
 <img src="https://img.shields.io/badge/-Bootstrap%205-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" />
 
 <br /><br />
 
 <h1>💊 MediCare</h1>
 <p><strong>Medicine Management System for Modern Pharmacies</strong></p>
-<p>A full-featured Django web application for inventory, sales, reporting, and AI-powered medical guidance — built for pharmacists who need reliability and speed.</p>
+<p>A full-featured Django web application for inventory, sales, and reporting — built for pharmacists who need reliability and speed.</p>
 
 <br />
 
-[Features](#-features) · [Tech Stack](#-tech-stack) · [Quick Start](#-quick-start) · [Project Structure](#-project-structure) · [User Roles](#-user-roles) · [AI Advisor](#-ai-advisor)
+[Features](#-features) · [Tech Stack](#-tech-stack) · [Quick Start](#-quick-start) · [Project Structure](#-project-structure) · [User Roles](#-user-roles)
 
 </div>
 
@@ -29,7 +28,6 @@
 | 📦 **Inventory & Stock** | Real-time stock tracking, low-stock alerts, restock workflows, movement log |
 | 🛒 **Sales & Dispensing** | POS-style interface with cart, discount support, and printable receipts |
 | 📋 **Reports** | Sales, inventory, expiry, and category reports — all exportable |
-| 🤖 **AI Medicine Advisor** | Gemini-powered symptom analysis and medicine suggestions |
 | 🏭 **Supplier Management** | Track suppliers and their associated medicines |
 | 🔔 **Notifications** | Automated alerts for low stock, expiring medicines, and system events |
 | 🔐 **User Roles** | Admin, Pharmacist, and Staff with role-based access control |
@@ -41,7 +39,6 @@
 ```
 Backend      Python 3.11+  ·  Django 4.2+
 Database     MySQL 8.0 via XAMPP
-AI           Google Gemini API  (gemini-2.5-flash)
 Frontend     Django Templates  ·  Bootstrap 5  ·  Chart.js  ·  jQuery
 Icons        Font Awesome 6
 ```
@@ -53,7 +50,6 @@ Icons        Font Awesome 6
 ### Prerequisites
 - XAMPP (Apache + MySQL)
 - Python 3.11+
-- A Google Gemini API key — [get one here](https://aistudio.google.com/app/apikey)
 
 ---
 
@@ -78,7 +74,6 @@ CREATE DATABASE medicine_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 In the project root, update your `.env` file:
 
 ```env
-GEMINI_API_KEY=your_gemini_api_key_here
 DEBUG=True
 SECRET_KEY=your_secret_key_here
 ```
@@ -171,7 +166,6 @@ medicine_management/
 ├── sales/                     # Sales processing & dispensing
 ├── reports/                   # Report generation & export
 ├── suppliers/                 # Supplier records
-├── ai_advisor/                # Google Gemini AI integration
 ├── notifications/             # Alert & notification system
 │
 ├── templates/                 # All HTML templates
@@ -209,14 +203,6 @@ medicine_management/
 
 ---
 
-## 🤖 AI Advisor
-
-The **AI Medicine Advisor** uses Google Gemini to analyze symptoms and suggest relevant medicines.
-
-> **Disclaimer:** AI suggestions are for informational purposes only. Always consult a licensed healthcare professional for diagnosis and treatment.
-
----
-
 ## 📄 License
 
 This project is open for educational and personal use. See `LICENSE` for details.
@@ -224,5 +210,5 @@ This project is open for educational and personal use. See `LICENSE` for details
 ---
 
 <div align="center">
-  <sub>Built with Django · Powered by Gemini AI · Designed for pharmacists</sub>
+  <sub>Built with Django · Designed for pharmacists</sub>
 </div>

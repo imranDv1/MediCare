@@ -9,6 +9,7 @@ from .forms import (
     CustomUserChangeForm,
     ProfileForm,
     PasswordChangeCustomForm,
+    AdminPasswordResetForm,
 )
 from .models import CustomUser
 
@@ -60,7 +61,7 @@ def logout_view(request):
 @login_required
 def profile(request):
     if request.method == 'POST':
-        form = ProfileForm(request.POST, request.FILES, instance=request.user)
+        form = ProfileForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile updated successfully.')
@@ -113,16 +114,46 @@ def user_create(request):
 @admin_required
 def user_edit(request, pk):
     user = get_object_or_404(CustomUser, pk=pk)
+    password_form = AdminPasswordResetForm()
     if request.method == 'POST':
         form = CustomUserChangeForm(request.POST, instance=user)
+        password_form = AdminPasswordResetForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, f'User {user.username} updated successfully.')
+            user = form.save()
+            p1 = request.POST.get('password1', '')
+            p2 = request.POST.get('password2', '')
+            if p1 and p2 and p1 == p2:
+                if password_form.is_valid():
+                    user.set_password(password_form.cleaned_data['password1'])
+                    user.save()
+                    messages.success(request, f'User {user.username} updated and password changed.')
+                else:
+                    return render(request, 'accounts/user_form.html', {
+                        'form': form, 'password_form': password_form, 'title': 'Edit User', 'object': user,
+                    })
+            else:
+                messages.success(request, f'User {user.username} updated successfully.')
             return redirect('user_list')
     else:
         form = CustomUserChangeForm(instance=user)
 
-    return render(request, 'accounts/user_form.html', {'form': form, 'title': 'Edit User'})
+    return render(request, 'accounts/user_form.html', {'form': form, 'password_form': password_form, 'title': 'Edit User', 'object': user})
+
+
+@login_required
+@admin_required
+def user_reset_password(request, pk):
+    user = get_object_or_404(CustomUser, pk=pk)
+    if request.method == 'POST':
+        form = AdminPasswordResetForm(request.POST)
+        if form.is_valid():
+            user.set_password(form.cleaned_data['password1'])
+            user.save()
+            messages.success(request, f'Password for {user.username} has been reset.')
+            return redirect('user_list')
+    else:
+        form = AdminPasswordResetForm()
+    return render(request, 'accounts/user_reset_password.html', {'form': form, 'user_obj': user})
 
 
 @login_required

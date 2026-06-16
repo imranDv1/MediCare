@@ -75,29 +75,42 @@
                                 {% endif %}
                             </div>
                         </div>
-                        {% if not object %}
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">{{ form.password1.label }}</label>
-                                {{ form.password1 }}
-                                {% if form.password1.help_text %}
-                                <div class="form-hint">{{ form.password1.help_text }}</div>
+                                <label class="form-label">{{ form.avatar.label }}</label>
+                                {{ form.avatar }}
+                                {% if form.avatar.errors %}
+                                <div class="form-error">{{ form.avatar.errors }}</div>
                                 {% endif %}
-                                {% if form.password1.errors %}
-                                <div class="form-error">{{ form.password1.errors }}</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <hr style="margin:8px 0;border-color:var(--border-default);">
+                            <p style="font-weight:500;margin-bottom:8px;font-size:13px;">
+                                <i class="fas fa-key me-1"></i> {% if object %}Change Password <small style="font-weight:400;color:var(--text-tertiary);">(leave blank to keep current)</small>{% else %}Password{% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{% if object %}New password{% else %}Password{% endif %}</label>
+                                <input type="password" name="password1" class="form-control" placeholder="{% if object %}New password (optional){% else %}Password{% endif %}"{% if not object %} required{% endif %}>
+                                {% if password_form.password1.help_text %}
+                                <div class="form-hint">{{ password_form.password1.help_text }}</div>
+                                {% endif %}
+                                {% if password_form.password1.errors %}
+                                <div class="form-error">{{ password_form.password1.errors }}</div>
                                 {% endif %}
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">{{ form.password2.label }}</label>
-                                {{ form.password2 }}
-                                {% if form.password2.errors %}
-                                <div class="form-error">{{ form.password2.errors }}</div>
+                                <label class="form-label">Confirm{% if object %} new{% endif %} password</label>
+                                <input type="password" name="password2" class="form-control" placeholder="{% if object %}Confirm new password (optional){% else %}Confirm password{% endif %}"{% if not object %} required{% endif %}>
+                                {% if password_form.password2.errors %}
+                                <div class="form-error">{{ password_form.password2.errors }}</div>
                                 {% endif %}
                             </div>
                         </div>
-                        {% endif %}
                         <div class="col-12">
                             <div class="mb-3">
                                 <div class="form-check">
@@ -134,5 +147,26 @@
             }
         }
     });
+    const avatarInput = document.getElementById('id_avatar');
+    if (avatarInput) {
+        const wrapper = avatarInput.closest('.mb-3');
+        const preview = document.createElement('div');
+        preview.style.cssText = 'margin-top:8px;display:none;';
+        preview.innerHTML = '<img src="" alt="Preview" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--border-default);">';
+        wrapper.appendChild(preview);
+        const previewImg = preview.querySelector('img');
+        avatarInput.addEventListener('input', function() {
+            if (this.value.trim()) {
+                previewImg.src = this.value.trim();
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+        if (avatarInput.value.trim()) {
+            previewImg.src = avatarInput.value.trim();
+            preview.style.display = 'block';
+        }
+    }
 </script>
 {% endblock %}

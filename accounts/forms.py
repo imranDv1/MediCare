@@ -52,7 +52,7 @@ class CustomUserChangeForm(UserChangeForm):
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'phone', 'role', 'first_name', 'last_name', 'is_active')
+        fields = ('username', 'email', 'phone', 'role', 'first_name', 'last_name', 'avatar', 'is_active')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -77,8 +77,28 @@ class ProfileForm(forms.ModelForm):
         self.fields['last_name'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Last name'})
         self.fields['email'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Email address'})
         self.fields['phone'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Phone number'})
-        self.fields['avatar'].widget.attrs.update({'class': 'form-control'})
+        self.fields['avatar'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Paste image URL'})
         self.fields['email'].required = True
+
+
+class AdminPasswordResetForm(forms.Form):
+    password1 = forms.CharField(
+        label='New password',
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'New password'}),
+        help_text=password_validation.password_validators_help_text_html(),
+    )
+    password2 = forms.CharField(
+        label='Confirm password',
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm password'}),
+    )
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("The two password fields didn't match.")
+        password_validation.validate_password(password1)
+        return password2
 
 
 class PasswordChangeCustomForm(forms.Form):

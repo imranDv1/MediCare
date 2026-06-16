@@ -3,6 +3,8 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
+    DEFAULT_AVATAR = 'https://placehold.co/100x100?text=User'
+
     ROLE_CHOICES = [
         ('admin', 'Admin'),
         ('pharmacist', 'Pharmacist'),
@@ -10,7 +12,11 @@ class CustomUser(AbstractUser):
     ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='staff')
     phone = models.CharField(max_length=20, blank=True)
-    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    avatar = models.URLField(max_length=500, blank=True, default='')
+
+    @property
+    def avatar_url(self):
+        return self.avatar or self.DEFAULT_AVATAR
 
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"

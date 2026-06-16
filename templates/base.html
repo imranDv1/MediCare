@@ -63,10 +63,10 @@
         <div class="sidebar-footer">
             {% if user.is_authenticated %}
             <div class="sidebar-user">
-                <div class="sidebar-user-avatar">{{ user.username|first|upper }}</div>
+                <img src="{{ user.avatar_url }}" alt="{{ user.username }}" class="sidebar-user-avatar">
                 <div>
                     <div class="sidebar-user-name">{{ user.username }}</div>
-                    <div class="sidebar-user-role">{% if user.is_superuser %}Admin{% elif user.is_staff %}Staff{% else %}User{% endif %}</div>
+                    <div class="sidebar-user-role">{{ user.get_role_display }}</div>
                 </div>
             </div>
             <a href="{% url 'logout' %}" class="sidebar-logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
@@ -90,9 +90,7 @@
                 {% endif %}
             </a>
             <div class="topbar-user dropdown">
-                <div class="topbar-avatar" data-bs-toggle="dropdown" aria-expanded="false">
-                    {{ user.username|first|upper }}
-                </div>
+                <img src="{{ user.avatar_url }}" alt="{{ user.username }}" class="topbar-avatar" data-bs-toggle="dropdown" aria-expanded="false">
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Profile</a></li>
                     <li><a class="dropdown-item" href="{% url 'change_password' %}"><i class="fas fa-key me-2"></i>Change Password</a></li>

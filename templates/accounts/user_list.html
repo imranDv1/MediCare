@@ -65,9 +65,7 @@
                     <tr>
                         <td>
                             <div style="display:flex;align-items:center;gap:10px;">
-                                <div style="width:32px;height:32px;border-radius:50%;background:var(--bg-subtle);display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:var(--text-secondary);font-weight:500;flex-shrink:0;">
-                                    {{ user_obj.username|first|upper }}
-                                </div>
+                                <img src="{{ user_obj.avatar_url }}" alt="{{ user_obj.username }}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;">
                                 <div>
                                     <div style="font-weight:500;">{{ user_obj.get_full_name|default:user_obj.username }}</div>
                                     <small style="color:var(--text-tertiary);">@{{ user_obj.username }}</small>

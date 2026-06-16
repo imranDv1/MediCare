@@ -268,14 +268,8 @@ a:hover {
 .sidebar-user-avatar {
   width: 30px;
   height: 30px;
-  border-radius: 0;
-  background: var(--sidebar-hover);
-  color: var(--sidebar-text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 500;
+  border-radius: 50%;
+  object-fit: cover;
   flex-shrink: 0;
 }
 
@@ -388,14 +382,9 @@ a:hover {
 .topbar-avatar {
   width: 30px;
   height: 30px;
-  border-radius: 0;
-  background: var(--brand-light);
-  color: var(--brand);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 500;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
 }
 
 /* MAIN CONTENT */

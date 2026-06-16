@@ -274,7 +274,6 @@ function submitSale() {
     $.ajax({
         url: '{% url "create_sale" %}',
         method: 'POST',
-        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
         contentType: 'application/json',
         data: JSON.stringify(payload),
         success: function(resp) {
@@ -296,6 +295,11 @@ function submitSale() {
         error: function(xhr) {
             var err = 'Network error. Please try again.';
             try { var r = JSON.parse(xhr.responseText); err = r.error || err; } catch(e) {}
+            if (err === 'Network error. Please try again.' && xhr.status === 403) {
+                err = 'Session expired. Please refresh the page and try again.';
+            } else if (err === 'Network error. Please try again.' && xhr.status >= 500) {
+                err = 'Server error. Please try again or contact support.';
+            }
             alert(err);
         },
         complete: function() {
@@ -314,7 +318,7 @@ $(document).ready(function() {
     $('#medicineSearch').on('focus', function() {
         if ($(this).val().length >= 1) updateSearchResults($(this).val());
     });
-    $(document).on('click', '#searchResults .dropdown-item', function(e) {
+    $(document).on('mousedown', '#searchResults .dropdown-item', function(e) {
         e.preventDefault();
         var id = parseInt($(this).data('id'));
         var med = null;

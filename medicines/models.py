@@ -15,6 +15,8 @@ class Category(models.Model):
 
 
 class Medicine(models.Model):
+    DEFAULT_MEDICINE_IMAGE = 'https://placehold.co/400x400?text=No+Image'
+
     DOSAGE_FORM_CHOICES = [
         ('tablet', 'Tablet'), ('capsule', 'Capsule'), ('syrup', 'Syrup'),
         ('injection', 'Injection'), ('cream', 'Cream'), ('drops', 'Drops'),
@@ -32,7 +34,7 @@ class Medicine(models.Model):
     manufacturing_date = models.DateField(null=True, blank=True)
     expiry_date = models.DateField()
     supplier = models.ForeignKey('suppliers.Supplier', on_delete=models.SET_NULL, null=True, blank=True, related_name='medicines')
-    image = models.ImageField(upload_to='medicines/', blank=True, null=True)
+    image = models.URLField(max_length=500, blank=True, default='')
     barcode_sku = models.CharField(max_length=100, unique=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -62,11 +64,19 @@ class Medicine(models.Model):
         return self.expiry_date and self.expiry_date <= date.today()
 
     @property
+    def stock_value(self):
+        return self.price * self.stock_quantity
+
+    @property
     def days_until_expiry(self):
         from datetime import date
         if self.expiry_date:
             return (self.expiry_date - date.today()).days
         return 0
+
+    @property
+    def image_url(self):
+        return self.image or self.DEFAULT_MEDICINE_IMAGE
 
 
 class StockMovement(models.Model):

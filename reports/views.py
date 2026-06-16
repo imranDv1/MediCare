@@ -40,14 +40,27 @@ def sales_report(request):
         daily_sales.append({'date': current.isoformat(), 'total': float(day_total)})
         current += timedelta(days=1)
 
+    labels = [d['date'] for d in daily_sales]
+    data = [d['total'] for d in daily_sales]
+    daily_sales_chart = {
+        'labels': labels,
+        'datasets': [{'label': 'Daily Sales', 'data': data, 'borderColor': '#4e8d6d', 'backgroundColor': 'rgba(78, 141, 109, 0.1)', 'fill': True, 'tension': 0.3}]
+    }
+
+    pmt_data = list(sales.values('payment_method').annotate(total=Sum('total')).annotate(count=Count('id')))
+    payment_chart = {
+        'labels': [p['payment_method'] for p in pmt_data],
+        'datasets': [{'data': [float(p['total']) for p in pmt_data], 'backgroundColor': ['#4e8d6d', '#6ba3d6', '#d4a76a']}]
+    }
+
     return render(request, 'reports/sales_report.html', {
         'sales': sales,
         'total_revenue': sales.aggregate(total=Sum('total'))['total'] or 0,
         'total_transactions': sales.count(),
         'start_date': start_date,
         'end_date': end_date,
-        'daily_sales_json': json.dumps(daily_sales),
-        'payment_breakdown': json.dumps(list(sales.values('payment_method').annotate(total=Sum('total')).annotate(count=Count('id')))),
+        'daily_sales_json': json.dumps(daily_sales_chart),
+        'payment_breakdown': json.dumps(payment_chart),
     })
 
 
@@ -57,15 +70,22 @@ def inventory_report(request):
     total_stock_value = sum(m.price * m.stock_quantity for m in medicines)
     category_breakdown = Category.objects.annotate(
         medicine_count=Count('medicines'),
+        total_stock=Sum('medicines__stock_quantity'),
         total_value=Sum(F('medicines__price') * F('medicines__stock_quantity'))
     )
 
+    cat_names = [c.name for c in category_breakdown]
+    cat_counts = [c.medicine_count for c in category_breakdown]
+    inventory_category_chart = {
+        'labels': cat_names,
+        'datasets': [{'label': 'Medicine Count', 'data': cat_counts, 'backgroundColor': ['#4e8d6d', '#6ba3d6', '#d4a76a', '#e8836b', '#9b7bb5', '#6bb59a', '#d49b6a']}]
+    }
     return render(request, 'reports/inventory_report.html', {
         'medicines': medicines,
         'total_stock_value': total_stock_value,
         'total_items': sum(m.stock_quantity for m in medicines),
         'category_breakdown': category_breakdown,
-        'category_data_json': json.dumps(list(category_breakdown.values('name', 'medicine_count', 'total_value'))),
+        'category_data_json': json.dumps(inventory_category_chart),
     })
 
 
@@ -94,8 +114,15 @@ def category_report(request):
         total_stock=Sum('medicines__stock_quantity'),
         total_value=Sum(F('medicines__price') * F('medicines__stock_quantity'))
     )
+    cat_labels = [c.name for c in categories]
+    cat_data = [c.medicine_count for c in categories]
+    category_chart_data = {
+        'labels': cat_labels,
+        'datasets': [{'label': 'Medicines per Category', 'data': cat_data, 'backgroundColor': ['#4e8d6d', '#6ba3d6', '#d4a76a', '#e8836b', '#9b7bb5', '#6bb59a', '#d49b6a']}]
+    }
     return render(request, 'reports/category_report.html', {
         'categories': categories,
+        'category_chart_data': json.dumps(category_chart_data),
     })
 
 

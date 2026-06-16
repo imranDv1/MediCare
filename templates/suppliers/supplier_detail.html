@@ -75,18 +75,12 @@
                                 <td>{{ med.stock_quantity }}</td>
                                 <td>${{ med.price }}</td>
                                 <td>
-                                    {% if med.stock_status == 'in_stock' %}
+{% if med.status == 'in_stock' %}
                                     <span class="badge badge-success">In Stock</span>
-                                    {% elif med.stock_status == 'low_stock' %}
-                                    <span class="badge badge-warning">Low Stock</span>
-                                    {% elif med.stock_status == 'out_of_stock' %}
-                                    <span class="badge badge-danger">Out of Stock</span>
-                                    {% elif med.status == 'out_of_stock' %}
-                                    <span class="badge badge-danger">Out of Stock</span>
                                     {% elif med.status == 'low_stock' %}
                                     <span class="badge badge-warning">Low Stock</span>
-                                    {% else %}
-                                    <span class="badge badge-success">In Stock</span>
+                                    {% elif med.status == 'out_of_stock' %}
+                                    <span class="badge badge-danger">Out of Stock</span>
                                     {% endif %}
                                 </td>
                                 <td>

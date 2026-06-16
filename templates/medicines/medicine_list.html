@@ -82,13 +82,7 @@
                         <tr>
                             <td><input type="checkbox" name="selected_ids" value="{{ med.pk }}" class="select-item"></td>
                             <td>
-                                {% if med.image %}
-                                <img src="{{ med.image.url }}" alt="{{ med.name }}" class="medicine-img">
-                                {% else %}
-                                <div class="medicine-img" style="display:flex;align-items:center;justify-content:center;background:var(--bg-subtle);color:var(--text-tertiary);font-size:14px;">
-                                    <i class="fas fa-pills"></i>
-                                </div>
-                                {% endif %}
+                                <img src="{{ med.image_url }}" alt="{{ med.name }}" class="medicine-img">
                             </td>
                             <td><a href="{% url 'medicine_detail' med.pk %}">{{ med.name }}</a></td>
                             <td>{{ med.category.name }}</td>

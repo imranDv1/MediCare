@@ -7,8 +7,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.paginator import Paginator
 from django.db.models import F, Q, Count, Sum
+from django.db.models.functions import TruncMonth
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+
+from notifications.models import Notification
+from notifications.views import create_notification
 
 from .forms import CategoryForm, MedicineForm, StockMovementForm
 from .models import Category, Medicine, StockMovement
@@ -90,11 +94,71 @@ def dashboard(request):
             usage_last_30_days_labels = json.dumps([item['medicine__name'] for item in usage_items])
             usage_last_30_days_data = json.dumps([int(item['total_qty']) for item in usage_items])
 
+    in_stock_count = total_medicines - low_stock_count - out_of_stock_count
+    stock_status_labels = json.dumps(['In Stock', 'Low Stock', 'Out of Stock'])
+    stock_status_data = json.dumps([in_stock_count, low_stock_count, out_of_stock_count])
+
+    monthly_sales_labels = json.dumps([])
+    monthly_sales_data = json.dumps([])
+    monthly_movements_in = json.dumps([])
+    monthly_movements_out = json.dumps([])
+    monthly_movement_labels = json.dumps([])
+
+    six_months_ago = today - timedelta(days=180)
+    months = []
+    for i in range(6):
+        m = today.replace(day=1) - timedelta(days=30 * i)
+        months.append(m.strftime('%Y-%m'))
+    months.reverse()
+
+    if Sale:
+        monthly_sales = Sale.objects.filter(timestamp__date__gte=six_months_ago) \
+            .annotate(month=TruncMonth('timestamp')) \
+            .values('month').annotate(total=Sum('total')).order_by('month')
+        sales_by_month = {s['month'].strftime('%Y-%m') if s['month'] else '': float(s['total']) for s in monthly_sales}
+        monthly_sales_labels = json.dumps(months)
+        monthly_sales_data = json.dumps([sales_by_month.get(m, 0) for m in months])
+
+    movements = StockMovement.objects.filter(timestamp__date__gte=six_months_ago) \
+        .annotate(month=TruncMonth('timestamp')) \
+        .values('month', 'movement_type').annotate(total=Sum('quantity')).order_by('month')
+    mov_in = {}
+    mov_out = {}
+    for mov in movements:
+        key = mov['month'].strftime('%Y-%m') if mov['month'] else ''
+        if mov['movement_type'] == 'IN':
+            mov_in[key] = int(mov['total'])
+        else:
+            mov_out[key] = int(mov['total'])
+    monthly_movement_labels = json.dumps(months)
+    monthly_movements_in = json.dumps([mov_in.get(m, 0) for m in months])
+    monthly_movements_out = json.dumps([mov_out.get(m, 0) for m in months])
+
+    # Expiry notifications with dedup (once per day)
+    expired_meds = Medicine.objects.filter(expiry_date__lte=today)
+    for med in expired_meds:
+        msg = f'"{med.name}" has expired on {med.expiry_date}.'
+        if not Notification.objects.filter(
+            notification_type='expired', message=msg, created_at__date=today,
+        ).exists():
+            create_notification('expired', msg)
+
+    near_expiry_meds = Medicine.objects.filter(
+        expiry_date__gt=today, expiry_date__lte=thirty_days,
+    )
+    for med in near_expiry_meds:
+        msg = f'"{med.name}" expires in {med.days_until_expiry} days ({med.expiry_date}).'
+        if not Notification.objects.filter(
+            notification_type='near_expiry', message=msg, created_at__date=today,
+        ).exists():
+            create_notification('near_expiry', msg)
+
     context = {
         'total_medicines': total_medicines,
         'low_stock_count': low_stock_count,
         'expiring_soon_count': expiring_soon_count,
         'out_of_stock_count': out_of_stock_count,
+        'in_stock_count': in_stock_count,
         'today_sales_total': today_sales_total,
         'expiring_medicines': expiring_medicines,
         'low_stock_medicines': low_stock_medicines,
@@ -105,6 +169,13 @@ def dashboard(request):
         'top_medicines_data': top_medicines_data,
         'usage_last_30_days_labels': usage_last_30_days_labels,
         'usage_last_30_days_data': usage_last_30_days_data,
+        'stock_status_labels': stock_status_labels,
+        'stock_status_data': stock_status_data,
+        'monthly_sales_labels': monthly_sales_labels,
+        'monthly_sales_data': monthly_sales_data,
+        'monthly_movement_labels': monthly_movement_labels,
+        'monthly_movements_in': monthly_movements_in,
+        'monthly_movements_out': monthly_movements_out,
     }
     return render(request, 'medicines/dashboard.html', context)
 
@@ -171,14 +242,13 @@ def medicine_list(request):
 @pharmacist_required
 def medicine_create(request):
     if request.method == 'POST':
-        form = MedicineForm(request.POST, request.FILES)
+        form = MedicineForm(request.POST)
         if form.is_valid():
             medicine = form.save(commit=False)
             medicine.created_by = request.user
             if not medicine.barcode_sku:
                 medicine.barcode_sku = str(uuid.uuid4()).replace('-', '').upper()[:12]
             medicine.save()
-            form.save_m2m()
 
             StockMovement.objects.create(
                 medicine=medicine,
@@ -201,7 +271,7 @@ def medicine_create(request):
 def medicine_edit(request, pk):
     medicine = get_object_or_404(Medicine, pk=pk)
     if request.method == 'POST':
-        form = MedicineForm(request.POST, request.FILES, instance=medicine)
+        form = MedicineForm(request.POST, instance=medicine)
         if form.is_valid():
             form.save()
             messages.success(request, f'Medicine "{medicine.name}" updated successfully.')
@@ -309,6 +379,8 @@ def restock_medicine(request):
                 note=note or 'Restocked',
                 user=request.user,
             )
+
+            create_notification('system', f'{medicine.name} restocked with {quantity} units by {request.user.get_full_name() or request.user.username}.')
 
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({

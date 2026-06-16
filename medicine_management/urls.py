@@ -18,7 +18,6 @@ urlpatterns = [
     path('medicines/', include('medicines.urls')),
     path('sales/', include('sales.urls')),
     path('suppliers/', include('suppliers.urls')),
-    path('ai-advisor/', include('ai_advisor.urls')),
     path('notifications/', include('notifications.urls')),
     path('reports/', include('reports.urls')),
     path('', dashboard, name='dashboard'),

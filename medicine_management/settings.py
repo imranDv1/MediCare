@@ -30,7 +30,6 @@ INSTALLED_APPS = [
     'medicines',
     'sales',
     'suppliers',
-    'ai_advisor',
     'notifications',
     'reports',
 ]
@@ -121,7 +120,6 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-GEMINI_API_KEY = env('GEMINI_API_KEY', default='')
 
 FILE_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
 DATA_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024

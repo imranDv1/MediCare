@@ -58,7 +58,7 @@
 </div>
 
 <div class="row g-4 mb-4">
-    <div class="col-lg-6">
+    <div class="col-md-6">
         <div class="card">
             <div class="card-header"><span class="card-title">Medicine Usage (Last 30 Days)</span></div>
             <div class="card-body">
@@ -68,7 +68,20 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-3">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><span class="card-title">Monthly Sales (Last 6 Months)</span></div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="monthlySalesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
         <div class="card">
             <div class="card-header"><span class="card-title">Medicines by Category</span></div>
             <div class="card-body">
@@ -78,12 +91,35 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-3">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header"><span class="card-title">Stock Status</span></div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="stockStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
         <div class="card">
             <div class="card-header"><span class="card-title">Top 10 Most Used</span></div>
             <div class="card-body">
                 <div class="chart-container">
                     <canvas id="topMedicinesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header"><span class="card-title">Monthly Stock Movements</span></div>
+            <div class="card-body">
+                <div class="chart-container" style="height:200px;">
+                    <canvas id="monthlyMovementsChart"></canvas>
                 </div>
             </div>
         </div>
@@ -234,16 +270,16 @@
 {% block extra_scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    var ctx1 = document.getElementById('usageChart').getContext('2d');
-    new Chart(ctx1, {
+    var usageCtx = document.getElementById('usageChart').getContext('2d');
+    new Chart(usageCtx, {
         type: 'line',
         data: {
             labels: {{ usage_last_30_days_labels|safe }},
             datasets: [{
                 label: 'Usage',
                 data: {{ usage_last_30_days_data|safe }},
-                borderColor: '#1a1a18',
-                backgroundColor: 'rgba(26,26,24,0.06)',
+                borderColor: '#4e8d6d',
+                backgroundColor: 'rgba(78,141,109,0.08)',
                 borderWidth: 1.5,
                 fill: true,
                 tension: 0
@@ -254,13 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
             maintainAspectRatio: false,
             plugins: {
                 legend: { display: false },
-                tooltip: {
-                    backgroundColor: '#1a1a18',
-                    titleColor: '#ffffff',
-                    bodyColor: '#a8a8a2',
-                    padding: 10,
-                    cornerRadius: 8
-                }
+                tooltip: { backgroundColor: '#4e8d6d', titleColor: '#ffffff', bodyColor: '#d4e8dc', padding: 10, cornerRadius: 8 }
             },
             scales: {
                 x: { grid: { display: false }, border: { display: false }, ticks: { color: '#9a9a94', font: { size: 11 } } },
@@ -269,14 +299,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    var ctx2 = document.getElementById('categoryChart').getContext('2d');
-    new Chart(ctx2, {
+    var salesCtx = document.getElementById('monthlySalesChart').getContext('2d');
+    new Chart(salesCtx, {
+        type: 'line',
+        data: {
+            labels: {{ monthly_sales_labels|safe }},
+            datasets: [{
+                label: 'Sales ($)',
+                data: {{ monthly_sales_data|safe }},
+                borderColor: '#4e8d6d',
+                backgroundColor: 'rgba(78,141,109,0.08)',
+                borderWidth: 1.5,
+                fill: true,
+                tension: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { backgroundColor: '#4e8d6d', titleColor: '#ffffff', bodyColor: '#d4e8dc', padding: 10, cornerRadius: 8, callbacks: { label: function(c) { return '$' + c.parsed.y.toFixed(2); } } }
+            },
+            scales: {
+                x: { grid: { display: false }, border: { display: false }, ticks: { color: '#9a9a94', font: { size: 11 } } },
+                y: { grid: { color: '#f0f0ee', lineWidth: 1 }, border: { display: false }, ticks: { color: '#9a9a94', font: { size: 11 } }, beginAtZero: true }
+            }
+        }
+    });
+
+    var catCtx = document.getElementById('categoryChart').getContext('2d');
+    new Chart(catCtx, {
         type: 'pie',
         data: {
             labels: {{ category_labels|safe }},
             datasets: [{
                 data: {{ category_data|safe }},
-                backgroundColor: ['#1a1a18', '#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
+                backgroundColor: ['#4e8d6d', '#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
             }]
         },
         options: {
@@ -284,20 +343,42 @@ document.addEventListener('DOMContentLoaded', function() {
             maintainAspectRatio: false,
             plugins: {
                 legend: { position: 'bottom', labels: { padding: 14, font: { size: 11 }, color: '#6b6b66' } },
-                tooltip: { backgroundColor: '#1a1a18', titleColor: '#ffffff', bodyColor: '#a8a8a2', padding: 10, cornerRadius: 8 }
+                tooltip: { backgroundColor: '#4e8d6d', titleColor: '#ffffff', bodyColor: '#d4e8dc', padding: 10, cornerRadius: 8 }
             }
         }
     });
 
-    var ctx3 = document.getElementById('topMedicinesChart').getContext('2d');
-    new Chart(ctx3, {
+    var statusCtx = document.getElementById('stockStatusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ stock_status_labels|safe }},
+            datasets: [{
+                data: {{ stock_status_data|safe }},
+                backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+                legend: { position: 'bottom', labels: { padding: 14, font: { size: 11 }, color: '#6b6b66' } },
+                tooltip: { backgroundColor: '#4e8d6d', titleColor: '#ffffff', bodyColor: '#d4e8dc', padding: 10, cornerRadius: 8 }
+            }
+        }
+    });
+
+    var topCtx = document.getElementById('topMedicinesChart').getContext('2d');
+    new Chart(topCtx, {
         type: 'bar',
         data: {
             labels: {{ top_medicines_labels|safe }},
             datasets: [{
                 label: 'Used',
                 data: {{ top_medicines_data|safe }},
-                backgroundColor: '#1a1a18',
+                backgroundColor: '#4e8d6d',
                 borderRadius: 4,
                 borderSkipped: 'bottom'
             }]
@@ -308,11 +389,47 @@ document.addEventListener('DOMContentLoaded', function() {
             indexAxis: 'y',
             plugins: {
                 legend: { display: false },
-                tooltip: { backgroundColor: '#1a1a18', titleColor: '#ffffff', bodyColor: '#a8a8a2', padding: 10, cornerRadius: 8 }
+                tooltip: { backgroundColor: '#4e8d6d', titleColor: '#ffffff', bodyColor: '#d4e8dc', padding: 10, cornerRadius: 8 }
             },
             scales: {
                 x: { grid: { color: '#f0f0ee', lineWidth: 1 }, border: { display: false }, ticks: { color: '#9a9a94', font: { size: 11 } }, beginAtZero: true },
                 y: { grid: { display: false }, border: { display: false }, ticks: { color: '#9a9a94', font: { size: 11 } } }
+            }
+        }
+    });
+
+    var movCtx = document.getElementById('monthlyMovementsChart').getContext('2d');
+    new Chart(movCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ monthly_movement_labels|safe }},
+            datasets: [
+                {
+                    label: 'Stock In',
+                    data: {{ monthly_movements_in|safe }},
+                    backgroundColor: '#10b981',
+                    borderRadius: 4,
+                    borderSkipped: 'bottom'
+                },
+                {
+                    label: 'Stock Out',
+                    data: {{ monthly_movements_out|safe }},
+                    backgroundColor: '#ef4444',
+                    borderRadius: 4,
+                    borderSkipped: 'bottom'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top', labels: { padding: 14, font: { size: 11 }, color: '#6b6b66' } },
+                tooltip: { backgroundColor: '#4e8d6d', titleColor: '#ffffff', bodyColor: '#d4e8dc', padding: 10, cornerRadius: 8 }
+            },
+            scales: {
+                x: { grid: { display: false }, border: { display: false }, ticks: { color: '#9a9a94', font: { size: 11 } } },
+                y: { grid: { color: '#f0f0ee', lineWidth: 1 }, border: { display: false }, ticks: { color: '#9a9a94', font: { size: 11 } }, beginAtZero: true }
             }
         }
     });

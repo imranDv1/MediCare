@@ -1,3 +1,10 @@
+var csrftoken = $('meta[name="csrf-token"]').attr('content');
+$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
+    if (options.type.toLowerCase() !== 'get') {
+        jqXHR.setRequestHeader('X-CSRFToken', csrftoken);
+    }
+});
+
 $(document).ready(function() {
     $('.sidebar-toggler, #sidebarToggler').on('click', function() {
         $('.sidebar').toggleClass('show');

@@ -66,17 +66,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'medicine_management.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'medicine_db',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-        },
-    }
+    'default': env.db_url('DATABASE_URL'),
 }
 
 AUTH_PASSWORD_VALIDATORS = [

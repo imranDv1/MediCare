@@ -81,7 +81,7 @@
                         </td>
                         <td>
                             <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#restockModal{{ med.pk }}">
-                                <i class="fas fa-plus"></i> Restock
+                                Restock
                             </button>
                         </td>
                     </tr>
@@ -126,7 +126,7 @@
             <i class="fas fa-boxes"></i>
             <h5>No Stock Records</h5>
             <p>No medicines have been added to the system yet.</p>
-            <a href="{% url 'medicine_create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Medicine</a>
+            <a href="{% url 'medicine_create' %}" class="btn btn-primary">Add New Medicine</a>
         </div>
         {% endif %}
     </div>

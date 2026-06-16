@@ -21,9 +21,12 @@
 
                 <div id="selectedMedicine" class="border rounded p-3 mb-3" style="display:none;">
                     <div class="row align-items-end g-3">
-                        <div class="col-md-6">
-                            <h6 id="selectedMedName" class="mb-1"></h6>
-                            <small class="text-muted" id="selectedMedDetails"></small>
+                        <div class="col-md-6 d-flex align-items-center gap-3">
+                            <img id="selectedMedImg" src="" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px;">
+                            <div>
+                                <h6 id="selectedMedName" class="mb-1"></h6>
+                                <small class="text-muted" id="selectedMedDetails"></small>
+                            </div>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Quantity</label>
@@ -82,9 +85,13 @@
                 <div class="mb-3">
                     <label class="form-label">Payment Method</label>
                     <select id="paymentMethod" class="form-control">
+                        <option value="waafi">Waafi</option>
+                        <option value="evc_plus">Evc Plus</option>
                         <option value="cash">Cash</option>
+                        <option value="wallet">Wallet</option>
+                        <option value="bank">Bank</option>
                         <option value="card">Card</option>
-                        <option value="insurance">Insurance</option>
+                        <option value="debt">Debt</option>
                     </select>
                 </div>
 
@@ -134,7 +141,7 @@
 <script>
 var medicines = [
     {% for m in medicines %}
-    { id: {{ m.id }}, name: "{{ m.name|escapejs }}", price: {{ m.price }}, stock: {{ m.stock_quantity }}, strength: "{{ m.strength|escapejs }}", generic_name: "{{ m.generic_name|escapejs }}" }{% if not forloop.last %},{% endif %}
+    { id: {{ m.id }}, name: "{{ m.name|escapejs }}", price: {{ m.price }}, stock: {{ m.stock_quantity }}, strength: "{{ m.strength|escapejs }}", generic_name: "{{ m.generic_name|escapejs }}", image: "{% firstof m.image 'https://placehold.co/400x400?text=No+Image'|escapejs %}" }{% if not forloop.last %},{% endif %}
     {% endfor %}
 ];
 var cart = [];
@@ -158,9 +165,10 @@ function updateSearchResults(query) {
     }
     var html = '';
     results.forEach(function(m) {
-        html += '<a href="#" class="dropdown-item" data-id="' + m.id + '">' +
-                '<div style="font-weight:500;">' + m.name + '</div>' +
-                '<small class="text-muted">' + (m.strength || '') + ' &mdash; $' + m.price.toFixed(2) + ' | Stock: ' + m.stock + '</small>' +
+        html += '<a href="#" class="dropdown-item d-flex align-items-center gap-2" data-id="' + m.id + '">' +
+                '<img src="' + m.image + '" alt="" style="width:32px;height:32px;object-fit:cover;border-radius:4px;" onerror="this.style.display=\'none\'">' +
+                '<div><div style="font-weight:500;">' + m.name + '</div>' +
+                '<small class="text-muted">' + (m.strength || '') + ' &mdash; $' + m.price.toFixed(2) + ' | Stock: ' + m.stock + '</small></div>' +
                 '</a>';
     });
     $('#searchResults').html(html).show();
@@ -170,6 +178,7 @@ function selectMedicine(med) {
     selectedMedicine = med;
     $('#medicineSearch').val(med.name);
     $('#searchResults').hide();
+    $('#selectedMedImg').attr('src', med.image).show();
     $('#selectedMedName').text(med.name + (med.strength ? ' (' + med.strength + ')' : ''));
     $('#selectedMedDetails').text('$' + med.price.toFixed(2) + ' | Stock: ' + med.stock + ' units');
     $('#cartQty').val(1).attr('max', med.stock);
@@ -188,7 +197,7 @@ function renderCart() {
         var subtotal = item.qty * item.price;
         tbody.append(
             '<tr>' +
-            '<td>' + item.name + '</td>' +
+            '<td><img src="' + item.image + '" alt="" style="width:24px;height:24px;object-fit:cover;border-radius:3px;margin-right:6px;" onerror="this.style.display=\'none\'">' + item.name + '</td>' +
             '<td>' + item.qty + '</td>' +
             '<td>$' + item.price.toFixed(2) + '</td>' +
             '<td>$' + subtotal.toFixed(2) + '</td>' +
@@ -241,6 +250,7 @@ function addToCart() {
             name: selectedMedicine.name,
             price: selectedMedicine.price,
             qty: qty,
+            image: selectedMedicine.image,
         });
     }
     renderCart();

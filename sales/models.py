@@ -4,9 +4,13 @@ from django.db import models
 
 class Sale(models.Model):
     PAYMENT_CHOICES = [
+        ('waafi', 'Waafi'),
+        ('evc_plus', 'Evc Plus'),
         ('cash', 'Cash'),
+        ('wallet', 'Wallet'),
+        ('bank', 'Bank'),
         ('card', 'Card'),
-        ('insurance', 'Insurance'),
+        ('debt', 'Debt'),
     ]
     invoice_no = models.CharField(max_length=50, unique=True)
     patient_name = models.CharField(max_length=200, blank=True)

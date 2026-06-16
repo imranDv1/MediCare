@@ -187,6 +187,17 @@ a:hover {
   border-bottom: 1px solid var(--sidebar-border);
 }
 
+.sidebar-logo-img-wrap {
+  background: #fff;
+  border-radius: 6px;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
 .sidebar-logo-img {
   width: 28px;
   height: 28px;
@@ -486,14 +497,16 @@ a:hover {
   margin-top: 4px;
 }
 
+.stat-card > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
 .stat-card-icon {
   font-size: 15px;
   color: var(--brand);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 10px;
-  height: 10px;
+  margin-top: 2px;
 }
 
 /* BUTTONS */
@@ -1186,10 +1199,3 @@ tbody tr:hover td { background: var(--brand-light); }
   width: 60%; transition: width 30s ease;
 }
 
-.stat-card > div {
-    align-items: flex-start ; /* changes layout away from vertical centering */
-}
-
-.stat-card-icon {
-    margin-top: 2px; /* nudges the top of the icon to cleanly match the title text height */
-}

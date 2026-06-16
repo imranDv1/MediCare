@@ -213,4 +213,5 @@ def get_medicine_info(request):
         'stock': medicine.stock_quantity,
         'strength': medicine.strength,
         'generic_name': medicine.generic_name,
+        'image': medicine.image_url,
     })
